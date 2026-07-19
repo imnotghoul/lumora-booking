@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "Lumora",
+    "slug": "lumora-booking",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/lumora-icon.png",
+    "scheme": "lumora",
+    "userInterfaceStyle": "light",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.portfolio.lumora.booking"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#3937A0",
+        "foregroundImage": "./assets/images/lumora-icon.png"
+      },
+      "package": "com.portfolio.lumora.booking",
+      "edgeToEdgeEnabled": true,
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "output": "static",
+      "favicon": "./assets/images/lumora-icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/lumora-splash.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "backgroundColor": "#3937A0",
+          "dark": {
+            "backgroundColor": "#3937A0"
+          }
+        }
+      ],
+      "expo-secure-store"
+    ]
+  }
+}

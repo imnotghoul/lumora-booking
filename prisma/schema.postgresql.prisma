@@ -1,0 +1,126 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  passwordHash String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime @updatedAt @db.Timestamptz(3)
+}
+
+model Service {
+  id           String              @id @default(cuid())
+  name         String
+  slug         String              @unique
+  description  String
+  duration     Int
+  price        Int
+  category     String
+  icon         String              @default("Sparkles")
+  featured     Boolean             @default(false)
+  active       Boolean             @default(true)
+  createdAt    DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime            @updatedAt @db.Timestamptz(3)
+  specialists  SpecialistService[]
+  appointments Appointment[]
+}
+
+model Specialist {
+  id           String              @id @default(cuid())
+  name         String
+  slug         String              @unique
+  title        String
+  bio          String
+  experience   Int
+  rating       Float               @default(5)
+  color        String              @default("#6D5CE7")
+  initials     String
+  active       Boolean             @default(true)
+  createdAt    DateTime            @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime            @updatedAt @db.Timestamptz(3)
+  services     SpecialistService[]
+  schedules    Schedule[]
+  appointments Appointment[]
+  slotLocks    AppointmentSlot[]
+}
+
+model SpecialistService {
+  specialistId String
+  serviceId    String
+  specialist   Specialist @relation(fields: [specialistId], references: [id], onDelete: Cascade)
+  service      Service    @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@id([specialistId, serviceId])
+  @@index([serviceId])
+}
+
+model Schedule {
+  id           String     @id @default(cuid())
+  specialistId String
+  dayOfWeek    Int
+  startTime    String
+  endTime      String
+  isWorking    Boolean    @default(true)
+  specialist   Specialist @relation(fields: [specialistId], references: [id], onDelete: Cascade)
+
+  @@unique([specialistId, dayOfWeek])
+  @@index([specialistId])
+}
+
+model Client {
+  id           String        @id @default(cuid())
+  name         String
+  phone        String        @unique
+  email        String
+  createdAt    DateTime      @default(now()) @db.Timestamptz(3)
+  updatedAt    DateTime      @updatedAt @db.Timestamptz(3)
+  appointments Appointment[]
+
+  @@index([email])
+}
+
+model Appointment {
+  id            String            @id @default(cuid())
+  bookingNumber String            @unique
+  clientId      String
+  serviceId     String
+  specialistId  String
+  startsAt      DateTime          @db.Timestamptz(3)
+  endsAt        DateTime          @db.Timestamptz(3)
+  status        String            @default("NEW")
+  notes         String?
+  cancelledAt   DateTime?         @db.Timestamptz(3)
+  createdAt     DateTime          @default(now()) @db.Timestamptz(3)
+  updatedAt     DateTime          @updatedAt @db.Timestamptz(3)
+  client        Client            @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  service       Service           @relation(fields: [serviceId], references: [id], onDelete: Restrict)
+  specialist    Specialist        @relation(fields: [specialistId], references: [id], onDelete: Restrict)
+  slotLocks     AppointmentSlot[]
+
+  @@index([startsAt])
+  @@index([status])
+  @@index([clientId, startsAt])
+  @@index([specialistId, startsAt])
+  @@index([serviceId])
+}
+
+model AppointmentSlot {
+  id            String      @id @default(cuid())
+  appointmentId String
+  specialistId  String
+  startsAt      DateTime    @db.Timestamptz(3)
+  appointment   Appointment @relation(fields: [appointmentId], references: [id], onDelete: Cascade)
+  specialist    Specialist  @relation(fields: [specialistId], references: [id], onDelete: Cascade)
+
+  @@unique([specialistId, startsAt])
+  @@index([appointmentId])
+}
